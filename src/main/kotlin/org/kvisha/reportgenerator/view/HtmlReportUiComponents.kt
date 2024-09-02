@@ -25,21 +25,17 @@ class HtmlReportUiComponents(private val project: Project) {
         jCefBrowser = JBCefBrowser("about:blank")
         panel.add(jCefBrowser!!.component, BorderLayout.CENTER)
 
-        // Create a panel for buttons with BorderLayout
         val buttonPanel = JPanel(BorderLayout())
 
-        // Panel for left-aligned buttons
         val leftPanel = JPanel()
         leftPanel.layout = FlowLayout(FlowLayout.LEFT)
         leftPanel.add(createGenerateReportButton())
         leftPanel.add(createReloadButton())
 
-        // Panel for right-aligned dropdown
         val rightPanel = JPanel()
         rightPanel.layout = FlowLayout(FlowLayout.RIGHT)
         rightPanel.add(createDropdown())
 
-        // Add both panels to the buttonPanel
         buttonPanel.add(leftPanel, BorderLayout.WEST)
         buttonPanel.add(rightPanel, BorderLayout.EAST)
 
@@ -49,12 +45,10 @@ class HtmlReportUiComponents(private val project: Project) {
         return panel
     }
 
-    // Create a styled dropdown with a preview label
     private fun createDropdown(): JComboBox<String> {
         val options = arrayOf("Star - Plugin", "Star - ReportGenerator", "Sponsor - ReportGenerator")
         val dropdown = ComboBox(options)
 
-        // Set the preferred size and other properties for the dropdown
         dropdown.preferredSize = Dimension(150, 30)
         dropdown.background = JBColor.LIGHT_GRAY
         dropdown.foreground = JBColor.BLACK
@@ -77,11 +71,10 @@ class HtmlReportUiComponents(private val project: Project) {
         dropdown.addActionListener { e: ActionEvent ->
             val selectedOption = dropdown.selectedItem as String
             when (selectedOption) {
-                "Star - Plugin" -> BrowserUtil.browse("https://github.com/sandrolort")
+                "Star - Plugin" -> BrowserUtil.browse("https://github.com/sandrolort/ReportGenerator-Jetbrains-Plugin")
                 "Star - ReportGenerator" -> BrowserUtil.browse("https://github.com/danielpalme/ReportGenerator")
                 "Sponsor - ReportGenerator" -> BrowserUtil.browse("https://github.com/sponsors/danielpalme")
             }
-            // Optionally reset the dropdown to show the preview label after selection
             dropdown.selectedIndex = -1
         }
 
@@ -106,31 +99,6 @@ class HtmlReportUiComponents(private val project: Project) {
         }
     }
 
-    // Create "Star" button that opens the GitHub star page
-    private fun createStarButton(): JButton {
-        return object : JButton("Star") {
-            init {
-                addActionListener { e: ActionEvent? ->
-                    //open the GitHub star page
-                    val url = "https://github.com/danielpalme/ReportGenerator"
-                    BrowserUtil.browse(url)
-                }
-            }
-        }
-    }
-
-    // Create "Sponsor" button that opens the GitHub sponsor page
-    private fun createSponsorButton(): JButton {
-        return object : JButton("Sponsor") {
-            init {
-                addActionListener { e: ActionEvent? ->
-                    val url = "https://github.com/sponsors/danielpalme"
-                    BrowserUtil.browse(url)
-                }
-            }
-        }
-    }
-
     fun reloadHtmlContent() {
         val htmlContent = loadHtmlContent()
         jCefBrowser?.loadHTML(htmlContent)
@@ -146,7 +114,6 @@ class HtmlReportUiComponents(private val project: Project) {
         return if (htmlFile != null && Files.exists(htmlFile)) {
             var htmlContent = Files.readString(htmlFile)
 
-            // Update resource paths to be absolute
             val baseDir = htmlFile.parent
             htmlContent = updateResourcePaths(htmlContent, baseDir)
 
@@ -157,14 +124,11 @@ class HtmlReportUiComponents(private val project: Project) {
     }
 
     private fun updateResourcePaths(content: String, baseDir: Path): String {
-        // Remove external "Star" and "Sponsor" buttons
         var modifiedContent = content.replace(Regex("""<a\s+[^>]*class="button"[^>]*>(.*?)</a>"""), "")
 
-        // Update href paths to be absolute paths for local resources
         modifiedContent.replace(Regex("""href="([^"]+)"""")) { match ->
             val resourcePath = match.groupValues[1]
             if (resourcePath.startsWith("http://") || resourcePath.startsWith("https://")) {
-                // Disable the link if it's an external link
                 """href="#" """
             } else {
                 val absolutePath = baseDir.resolve(resourcePath).toAbsolutePath().toUri().toString()
@@ -172,7 +136,6 @@ class HtmlReportUiComponents(private val project: Project) {
             }
         }.also { modifiedContent = it }
 
-        // Update src paths to be absolute paths for local resources
         modifiedContent.replace(Regex("""src="([^"]+)"""")) { match ->
             val resourcePath = match.groupValues[1]
             val absolutePath = baseDir.resolve(resourcePath).toAbsolutePath().toUri().toString()
@@ -197,7 +160,7 @@ class HtmlReportUiComponents(private val project: Project) {
         } ?: javaClass.getResourceAsStream("/no-report.html")
             ?.bufferedReader()
             ?.use { it.readText() }
-        ?: ReportGenerator.getReportGeneratorExePath(project)
+        ?: ReportGenerator.getReportGeneratorExePath()
             ?.let { javaClass.getResource("/tools-not-installed.html")?.readText() }
         ?: placeholder
     }

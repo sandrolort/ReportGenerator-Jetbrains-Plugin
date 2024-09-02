@@ -2,7 +2,7 @@ import org.gradle.internal.classpath.Instrumented.systemProperty
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.25"
+    id("org.jetbrains.kotlin.jvm") version "2.0.0"
     id("org.jetbrains.intellij") version "1.17.4"
 }
 
@@ -34,9 +34,10 @@ tasks {
         targetCompatibility = "17"
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
-
     patchPluginXml {
         sinceBuild.set("232")
         untilBuild.set("242.*")

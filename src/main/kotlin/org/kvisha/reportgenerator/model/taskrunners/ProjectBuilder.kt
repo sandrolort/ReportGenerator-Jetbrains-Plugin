@@ -1,10 +1,8 @@
 package org.kvisha.reportgenerator.model.taskrunners
 
-import BaseTaskRunner
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
+import org.kvisha.reportgenerator.model.Notifications
 import org.kvisha.reportgenerator.settings.ReportGeneratorSettings
-import javax.swing.SwingUtilities
 
 object ProjectBuilder : BaseTaskRunner() {
 
@@ -16,9 +14,7 @@ object ProjectBuilder : BaseTaskRunner() {
 
         val commandParts = parseCommand(buildCommand)
         if (commandParts.isEmpty()) {
-            SwingUtilities.invokeLater {
-                Messages.showErrorDialog(project, "Invalid build command: $buildCommand", "Error")
-            }
+            Notifications.error(project, "Invalid build command: $buildCommand", "Error")
             return
         }
 

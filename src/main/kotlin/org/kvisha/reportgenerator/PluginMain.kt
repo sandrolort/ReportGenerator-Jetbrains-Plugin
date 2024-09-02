@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 
 class MyStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
-        // Ensure ToolWindow operations are done on EDT
         withContext(Dispatchers.EDT) {
             ApplicationManager.getApplication().invokeLater {
                 val toolWindowManager = ToolWindowManager.getInstance(project)

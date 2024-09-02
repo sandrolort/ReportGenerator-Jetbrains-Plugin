@@ -1,41 +1,19 @@
+package org.kvisha.reportgenerator.model.taskrunners
+
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
-import org.kvisha.reportgenerator.model.NotificationManager
+import org.kvisha.reportgenerator.model.Notifications
 import java.io.File
 import javax.swing.SwingUtilities
 
 abstract class BaseTaskRunner {
-
     protected fun parseCommand(command: String): List<String> {
-        val result = mutableListOf<String>()
-        var current = StringBuilder()
-        var inQuotes = false
-
-        for (char in command) {
-            when {
-                char == ' ' && !inQuotes -> {
-                    if (current.isNotEmpty()) {
-                        result.add(current.toString())
-                        current = StringBuilder()
-                    }
-                }
-                char == '"' -> {
-                    inQuotes = !inQuotes
-                }
-                else -> {
-                    current.append(char)
-                }
-            }
-        }
-
-        if (current.isNotEmpty()) {
-            result.add(current.toString())
-        }
-
-        return result
+        // the regex matches either unquoted words or quoted substrings.
+        val regex = Regex("""[^\s"]+|"([^"]*)"""")
+        return regex.findAll(command).map { it.value.trim('"') }.toList()
     }
 
     protected fun createProcessBuilder(commandParts: List<String>, projectPath: String): ProcessBuilder {
@@ -54,12 +32,13 @@ abstract class BaseTaskRunner {
                 if (exitCode == 0) {
                     onComplete()
                 } else {
-                    NotificationManager.notifyError(project, "Process failed:\n$output")
+                    Notifications.error(project, "Process failed:\n$output")
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             SwingUtilities.invokeLater {
-                NotificationManager.notifyError(project, "Error: ${e.message}")
+                Notifications.error(project, "Error: ${e.message}")
             }
         }
     }
@@ -71,8 +50,9 @@ abstract class BaseTaskRunner {
             override fun run(indicator: ProgressIndicator) = try {
                 runTaskPrivate(projectPath, project, onComplete)
             } catch (e: Exception) {
+                e.printStackTrace()
                 SwingUtilities.invokeLater {
-                    NotificationManager.notifyError(project, "Error: ${e.message}")
+                    Notifications.error(project, "Error: ${e.message}")
                 }
             }
         })

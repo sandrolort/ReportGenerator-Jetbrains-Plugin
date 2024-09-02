@@ -1,8 +1,8 @@
 package org.kvisha.reportgenerator.model.taskrunners
 
-import BaseTaskRunner
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.project.Project
-import org.kvisha.reportgenerator.model.NotificationManager
+import org.kvisha.reportgenerator.model.Notifications
 import org.kvisha.reportgenerator.settings.ReportGeneratorSettings
 import org.kvisha.reportgenerator.view.HtmlReportPlugin
 import java.io.File
@@ -11,9 +11,9 @@ import javax.swing.SwingUtilities
 object ReportGenerator : BaseTaskRunner() {
 
     override fun runTaskPrivate(projectPath: String, project: Project, onComplete: () -> Unit) {
-        val coverageReportPath = findCoverageReport(projectPath, project) ?: run {
+        val coverageReportPath = findCoverageReport(project) ?: run {
             SwingUtilities.invokeLater {
-                NotificationManager.notifyError(project, "No coverage report found.")
+                Notifications.error(project, "No coverage report found.")
             }
             return
         }
@@ -23,9 +23,9 @@ object ReportGenerator : BaseTaskRunner() {
         if (settings.shouldEraseOldReports)
             clearCoverageReports(projectPath, project)
 
-        val reportGeneratorExePath = getReportGeneratorExePath(project) ?: run {
+        val reportGeneratorExePath = getReportGeneratorExePath() ?: run {
             SwingUtilities.invokeLater {
-                NotificationManager.notifyError(
+                Notifications.error(
                     project,
                     "ReportGenerator.exe not found. Install it as a global tool using 'dotnet tool install -g dotnet-reportgenerator-globaltool'."
                 )
@@ -35,14 +35,10 @@ object ReportGenerator : BaseTaskRunner() {
 
         runReportGenerator(reportGeneratorExePath, coverageReportPath, project)
 
-        SwingUtilities.invokeLater { HtmlReportPlugin.getInstance()?.reloadHtmlContent() }
+        invokeLater { HtmlReportPlugin.getInstance()?.reloadHtmlContent() }
     }
 
-    fun generateReport(projectPath: String, project: Project, onComplete: () -> Unit) {
-        runTask(projectPath, project, "Generating report", onComplete)
-    }
-
-    private fun findCoverageReport(projectDirectory: String, project: Project): String? {
+    private fun findCoverageReport(project: Project): String? {
         val settings = ReportGeneratorSettings.getInstance(project).state
         val path = ReportGeneratorSettings.convertPathToAbsolute(settings.coverageReportDir, project)
         val testResultsDir = File(path)
@@ -67,9 +63,8 @@ object ReportGenerator : BaseTaskRunner() {
                 }
             }
 
-            if (latestCoverageFile != null) {
+            if (latestCoverageFile != null) 
                 return latestCoverageFile!!.absolutePath
-            }
         }
 
         return null
@@ -87,7 +82,7 @@ object ReportGenerator : BaseTaskRunner() {
         }
     }
 
-    internal fun getReportGeneratorExePath(project: Project): String? {
+    internal fun getReportGeneratorExePath(): String? {
         val homeDirectory = System.getProperty("user.home")
         val reportGeneratorDir = File(homeDirectory, ".nuget/packages/reportgenerator")
         if (reportGeneratorDir.exists() && reportGeneratorDir.isDirectory) {
