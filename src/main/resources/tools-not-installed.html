@@ -1,0 +1,45 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #F5F5F5; /* Light background color matching IDE themes */
+            color: #333333; /* Default text color */
+        }
+        h1 {
+            color: #FF6F00; /* Accent color for headers */
+            font-size: 24px;
+        }
+        p {
+            color: #333333; /* Text color */
+            font-size: 16px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #FFFFFF; /* White background for content area */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for better contrast */
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tools Not Installed</h1>
+    <p>Make sure you have installed the global Report Generator tool:</p>
+    <!--  syntax highlighting of script -->
+    <code>
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+    </code>
+
+    <p>If on Linux, you will need Wine to run the Report Generator tool.</p>
+</div>
+</body>
+</html>

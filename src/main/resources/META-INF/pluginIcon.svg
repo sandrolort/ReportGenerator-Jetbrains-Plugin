@@ -1,0 +1,20 @@
+<svg width="200" height="200" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <!-- Define the drop shadow filter -->
+    <defs>
+        <filter id="dropShadow" x="-10%" y="-10%" width="150%" height="150%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="1" dy="1" result="offsetblur"/>
+            <feFlood flood-color="rgba(0,0,0,0.2)"/>
+            <feComposite in2="offsetblur" operator="in"/>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- Document icon with drop shadow -->
+    <rect x="9" y="-5" width="10" height="10" fill="#ffffff" transform="rotate(45)" filter="url(#dropShadow)"/>
+    <rect x="11.5" y="-7.6" width="10" height="10" fill="#32b832" transform="rotate(45)" filter="url(#dropShadow)"/>
+    <rect x="13.5" y="-3" width="10" height="10" fill="#e81414" transform="rotate(45)" filter="url(#dropShadow)"/>
+</svg>
